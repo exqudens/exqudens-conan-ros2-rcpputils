@@ -299,9 +299,7 @@ function(ament_target_dependencies target)
     set(oneValueKeywords)
     set(multiValueKeywords)
     cmake_parse_arguments("${currentFunctionName}" "${options}" "${oneValueKeywords}" "${multiValueKeywords}" "${ARGN}")
-
-    if("${${currentFunctionName}_UNPARSED_ARGUMENTS}" STREQUAL "")
-        message("AAA-target: '${target}'")
+    if(NOT "${${currentFunctionName}_UNPARSED_ARGUMENTS}" STREQUAL "")
         foreach(v IN LISTS "${currentFunctionName}_UNPARSED_ARGUMENTS")
             target_link_libraries("${target}" PUBLIC "${v}::${v}")
         endforeach()
@@ -333,15 +331,34 @@ add_custom_target("cmake-install"
     VERBATIM
 )
 
-#[[add_custom_target("conan-export"
+add_custom_target("cmake-install-fix"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/include/${PROJECT_NAME_LOWER}/${PROJECT_NAME_LOWER}"
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/old-include/${PROJECT_NAME_LOWER}/${PROJECT_NAME_LOWER}"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/include/${PROJECT_NAME_LOWER}/${PROJECT_NAME_LOWER}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/include"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/old-include/${PROJECT_NAME_LOWER}"
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/include"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf
+            "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}/old-include"
+    DEPENDS "cmake-install"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_target("conan-export"
     COMMAND "${CONAN_COMMAND}" "export-pkg"
-            #"--force"
+            "--force"
             "--package-folder" "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME_LOWER}"
             ${CONAN_SETTINGS}
             ${CONAN_OPTIONS}
             "${PROJECT_SOURCE_DIR}/conanfile.py"
             #"gitlab-group+gitlab-sub-group+${PROJECT_NAME_LOWER}/stable"
-    DEPENDS "cmake-install"
+    DEPENDS "cmake-install-fix"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
-)]]
+)
