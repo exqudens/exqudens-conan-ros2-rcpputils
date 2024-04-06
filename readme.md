@@ -1,7 +1,7 @@
 # ros2-rcpputils
 
-URL: [ros2/rcpputils](https://github.com/ros2/rcpputils.git)
-Version info: [ros2.repos](https://github.com/ros2/ros2/blob/iron-release/ros2.repos)
+- URL: [ros2/rcpputils](https://github.com/ros2/rcpputils.git)
+- Version info: [ros2.repos](https://github.com/ros2/ros2/blob/iron-release/ros2.repos)
 
 ## How To Build
 ```
